@@ -24,7 +24,6 @@ namespace JewelShopService.ImplementationsList
             List<HangarViewModel> result = new List<HangarViewModel>();
             for (int i = 0; i < source.Hangars.Count; ++i)
             {
-                // требуется дополнительно получить список компонентов на складе и их количество
                 List<HangarElementViewModel> StockComponents = new List<HangarElementViewModel>();
                 for (int j = 0; j < source.HangarElements.Count; ++j)
                 {
@@ -63,7 +62,6 @@ namespace JewelShopService.ImplementationsList
         {
             for (int i = 0; i < source.Hangars.Count; ++i)
             {
-                // требуется дополнительно получить список компонентов на складе и их количество
                 List<HangarElementViewModel> StockComponents = new List<HangarElementViewModel>();
                 for (int j = 0; j < source.HangarElements.Count; ++j)
                 {
@@ -146,7 +144,6 @@ namespace JewelShopService.ImplementationsList
 
         public void DelElement(int id)
         {
-            // при удалении удаляем все записи о компонентах на удаляемом складе
             for (int i = 0; i < source.HangarElements.Count; ++i)
             {
                 if (source.HangarElements[i].hangarId == id)

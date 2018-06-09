@@ -110,7 +110,6 @@ namespace JewelShopService.ImplementationsList
             {
                 throw new Exception("Элемент не найден");
             }
-            // смотрим по количеству компонентов на складах
             for (int i = 0; i < source.AdornmentElements.Count; ++i)
             {
                 if (source.AdornmentElements[i].adornmentId == source.ProdOrders[index].adornmentId)
@@ -136,7 +135,6 @@ namespace JewelShopService.ImplementationsList
                     }
                 }
             }
-            // списываем
             for (int i = 0; i < source.AdornmentElements.Count; ++i)
             {
                 if (source.AdornmentElements[i].adornmentId == source.ProdOrders[index].adornmentId)
@@ -146,7 +144,6 @@ namespace JewelShopService.ImplementationsList
                     {
                         if (source.HangarElements[j].elementId == source.AdornmentElements[i].elementId)
                         {
-                            // компонентов на одном слкаде может не хватать
                             if (source.HangarElements[j].count >= countOnStocks)
                             {
                                 source.HangarElements[j].count -= countOnStocks;
