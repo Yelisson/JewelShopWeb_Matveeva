@@ -1,7 +1,9 @@
+using JewelShopService;
+using JewelShopService.ImplementationsDB;
 using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using System;
-
+using System.Data.Entity;
 using Unity;
 
 namespace JewelShopWebView
@@ -44,12 +46,13 @@ namespace JewelShopWebView
 
             // TODO: Register your type's mappings here.
             // container.RegisterType<IProductRepository, ProductRepository>();
-            container.RegisterType<IBuyerService, BuyerServiceList>();
-            container.RegisterType<IElementService, ElementServiceList>();
-            container.RegisterType<ICustomerService, CustomerServiceList>();
-            container.RegisterType<IAdornmentService, AdornmentServiceList>();
-            container.RegisterType<IHangarService, HangarServiceList>();
-            container.RegisterType<IMainService, MainServiceList>();
+            container.RegisterType<DbContext, AbstractDataBaseContext>();
+            container.RegisterType<IBuyerService, BuyerServiceDB>();
+            container.RegisterType<IElementService, ElementServiceDB>();
+            container.RegisterType<ICustomerService, CustomerServiceDB>();
+            container.RegisterType<IAdornmentService, AdornmentServiceDB>();
+            container.RegisterType<IHangarService, HangarServiceDB>();
+            container.RegisterType<IMainService, MainServiceDB>();
         }
     }
 }

@@ -17,17 +17,17 @@
         <asp:Button ID="ButtonUpd" runat="server" Text="Обновить" OnClick="ButtonUpd_Click" />
         <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
-                <asp:BoundField DataField="Id" HeaderText="Id" SortExpression="Id" />                
-                <asp:CommandField ShowSelectButton="true" SelectText=">>" />
-                <asp:BoundField DataField="AdornmentName" HeaderText="AdornmentName" SortExpression="AdornmentName" />
-                <asp:BoundField DataField="Price" HeaderText="Price" SortExpression="Price" />
+                <asp:CommandField ShowSelectButton="True" />
+                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />                
+                <asp:BoundField DataField="adornmentName" HeaderText="adornmentName" SortExpression="adornmentName" />
+                <asp:BoundField DataField="price" HeaderText="price" SortExpression="price" />
             </Columns>
             <SelectedRowStyle BackColor="#CCCCCC" />
         </asp:GridView>
         <br />
         <br />
         <asp:Button ID="ButtonBack" runat="server" Text="Вернуться" OnClick="ButtonBack_Click" />
-        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsList.AdornmentServiceList"></asp:ObjectDataSource>
+        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsDB.AdornmentServiceDB"></asp:ObjectDataSource>
     
     </div>
     </form>

@@ -7,12 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormElements : System.Web.UI.Page
     {
-        private readonly IElementService service = new ElementServiceList();
+        private IElementService service = UnityConfig.Container.Resolve<IElementService>();
 
         List<ElementViewModel> list;
 

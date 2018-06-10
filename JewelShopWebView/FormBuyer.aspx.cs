@@ -17,7 +17,7 @@ namespace JewelShopWebView
     {
         public int Id { set { id = value; } }
 
-        private readonly IBuyerService service = new BuyerServiceList();
+        private readonly IBuyerService service = UnityConfig.Container.Resolve<IBuyerService>();
 
         private int id;
 
@@ -32,21 +32,10 @@ namespace JewelShopWebView
                     BuyerViewModel view = service.GetElement(id);
                     if (view != null)
                     {
-                        name = view.buyerName;
-                        service.UpdElement(new BuyerBindingModel
+                        if (!Page.IsPostBack)
                         {
-                            id = id,
-                            buyerName = ""
-                        });
-                        if (!string.IsNullOrEmpty(name) && string.IsNullOrEmpty(textBoxFIO.Text))
-                        {
-                            textBoxFIO.Text = name;
+                            textBoxFIO.Text = view.buyerName;
                         }
-                        service.UpdElement(new BuyerBindingModel
-                        {
-                            id = id,
-                            buyerName = name
-                        });
                     }
                 }
                 catch (Exception ex)

@@ -7,18 +7,20 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
+using Unity;
 using System.Web.UI.WebControls;
 
 namespace JewelShopWebView
 {
     public partial class FormMain : System.Web.UI.Page
     {
-        private readonly IMainService service = new MainServiceList();
+        private IMainService service = UnityConfig.Container.Resolve<IMainService>();
 
         List<ProdOrderViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            service = UnityConfig.Container.Resolve<IMainService>();
             LoadData();
         }
 
@@ -28,6 +30,9 @@ namespace JewelShopWebView
             {
                 list = service.GetList();
                 dataGridView1.Columns[0].Visible = false;
+                dataGridView1.Columns[2].Visible = false;
+                dataGridView1.Columns[4].Visible = false;
+                dataGridView1.Columns[6].Visible = false;
             }
             catch (Exception ex)
             {

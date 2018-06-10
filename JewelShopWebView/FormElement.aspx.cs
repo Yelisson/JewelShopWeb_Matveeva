@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
@@ -15,7 +16,7 @@ namespace JewelShopWebView
     {
         public int Id { set { id = value; } }
 
-        private readonly IElementService service=new ElementServiceList();
+        private readonly IElementService service = UnityConfig.Container.Resolve<IElementService>();
 
         private int id;
 
@@ -30,21 +31,10 @@ namespace JewelShopWebView
                     ElementViewModel view = service.GetElement(id);
                     if (view != null)
                     {
-                        name = view.elementName;
-                        service.UpdElement(new ElementBindingModel
+                        if (!Page.IsPostBack)
                         {
-                            id = id,
-                            elementName = ""
-                        });
-                        if (!string.IsNullOrEmpty(name) && string.IsNullOrEmpty(textBoxName.Text))
-                        {
-                            textBoxName.Text = name;
+                            textBoxName.Text = view.elementName;
                         }
-                        service.UpdElement(new ElementBindingModel
-                        {
-                            id = id,
-                            elementName = name
-                        });
                     }
                 }
                 catch (Exception ex)

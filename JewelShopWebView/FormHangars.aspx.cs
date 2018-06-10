@@ -7,12 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormHangars : System.Web.UI.Page
     {
-        private readonly IHangarService service = new HangarServiceList();
+        private IHangarService service = UnityConfig.Container.Resolve<IHangarService>();
 
         List<HangarViewModel> list;
 
@@ -27,7 +28,7 @@ namespace JewelShopWebView
             {
                 list = service.GetList();
                 dataGridView.Columns[0].Visible = false;
-            }
+            }   
             catch (Exception ex)
             {
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");

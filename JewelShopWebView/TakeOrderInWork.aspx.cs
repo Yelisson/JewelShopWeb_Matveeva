@@ -8,14 +8,15 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class TakeOrderInWork : System.Web.UI.Page
     {
-        private readonly ICustomerService serviceP = new CustomerServiceList();
+        private readonly ICustomerService serviceP = UnityConfig.Container.Resolve<ICustomerService>();
 
-        private readonly IMainService serviceM = new MainServiceList();
+        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
 
         private int id;
 
@@ -23,21 +24,21 @@ namespace JewelShopWebView
         {
             try
             {
-                if (!Int32.TryParse((string)Session["id"],out id))
-                {
-                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Не указан заказ');</script>");
-                    Server.Transfer("FormMain.aspx");
-                }
-                List<CustomerViewModel> listI = serviceP.GetList();
-                if (listI != null)
-                {
-                    DropDownListPerformer.DataSource = listI;
-                    DropDownListPerformer.DataBind();
-                    DropDownListPerformer.DataTextField = "customerName";
-                    DropDownListPerformer.DataValueField = "id";
-                    DropDownListPerformer.SelectedIndex = -1;
-                }
-                Page.DataBind();
+                    if (!Int32.TryParse((string)Session["id"], out id))
+                    {
+                        Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Не указан заказ');</script>");
+                        Server.Transfer("FormMain.aspx");
+                    }
+                    List<CustomerViewModel> listI = serviceP.GetList();
+                    if (listI != null)
+                    {
+                        DropDownListPerformer.DataSource = listI;
+                        DropDownListPerformer.DataBind();
+                        DropDownListPerformer.DataTextField = "customerName";
+                        DropDownListPerformer.DataValueField = "id";
+                        DropDownListPerformer.SelectedIndex = -1;
+                    }
+                    Page.DataBind();
             }
             catch (Exception ex)
             {

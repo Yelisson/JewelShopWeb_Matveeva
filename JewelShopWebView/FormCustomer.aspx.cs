@@ -8,12 +8,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormCustomer : System.Web.UI.Page
     {
-        private readonly ICustomerService service = new CustomerServiceList();
+        private readonly ICustomerService service = UnityConfig.Container.Resolve<ICustomerService>();
 
         private int id;
 
@@ -28,21 +29,10 @@ namespace JewelShopWebView
                     CustomerViewModel view = service.GetElement(id);
                     if (view != null)
                     {
-                        name = view.customerName;
-                        service.UpdElement(new CustomerBindingModel
+                        if (!Page.IsPostBack)
                         {
-                            id = id,
-                            customerName = ""
-                        });
-                        if (!string.IsNullOrEmpty(name) && string.IsNullOrEmpty(TextBoxFIO.Text))
-                        {
-                            TextBoxFIO.Text = name;
+                            TextBoxFIO.Text = view.customerName;
                         }
-                        service.UpdElement(new CustomerBindingModel
-                        {
-                            id = id,
-                            customerName = name
-                        });
                     }
                 }
                 catch (Exception ex)

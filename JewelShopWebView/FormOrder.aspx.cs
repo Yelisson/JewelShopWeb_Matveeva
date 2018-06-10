@@ -8,38 +8,42 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormOrder : System.Web.UI.Page
     {
-        private readonly IBuyerService serviceC=new BuyerServiceList();
+        private readonly IBuyerService serviceC = UnityConfig.Container.Resolve<IBuyerService>();
 
-        private readonly IAdornmentService serviceS = new AdornmentServiceList();
+        private readonly IAdornmentService serviceS = UnityConfig.Container.Resolve<IAdornmentService>();
 
-        private readonly IMainService serviceM = new MainServiceList();
+        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
 
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                List<BuyerViewModel> listC = serviceC.GetList();
-                if (listC != null)
+                if (!Page.IsPostBack)
                 {
-                    DropDownListCustomer.DataSource = listC;
-                    DropDownListCustomer.DataBind();
-                    DropDownListCustomer.DataTextField = "buyerName";
-                    DropDownListCustomer.DataValueField = "id";
+                    List<BuyerViewModel> listC = serviceC.GetList();
+                    if (listC != null)
+                    {
+                        DropDownListCustomer.DataSource = listC;
+                        DropDownListCustomer.DataBind();
+                        DropDownListCustomer.DataTextField = "buyerName";
+                        DropDownListCustomer.DataValueField = "id";
+                    }
+                    List<AdornmentViewModel> listP = serviceS.GetList();
+                    if (listP != null)
+                    {
+                        DropDownListService.DataSource = listP;
+                        DropDownListService.DataBind();
+                        DropDownListService.DataTextField = "adornmentName";
+                        DropDownListService.DataValueField = "id";
+                    }
+                    Page.DataBind();
                 }
-                List<AdornmentViewModel> listP = serviceS.GetList();
-                if (listP != null)
-                {
-                    DropDownListService.DataSource = listP;
-                    DropDownListService.DataBind();
-                    DropDownListService.DataTextField = "adornmentName";
-                    DropDownListService.DataValueField = "id";
-                }
-                Page.DataBind();
             }
             catch (Exception ex)
             {
@@ -57,7 +61,7 @@ namespace JewelShopWebView
                     int id = Convert.ToInt32(DropDownListService.SelectedValue);
                     AdornmentViewModel product = serviceS.GetElement(id);
                     int count = Convert.ToInt32(TextBoxCount.Text);
-                    TextBoxSum.Text = (count * product.price).ToString();
+                    TextBoxSum.Text = ((int)(count * product.price)).ToString();
                 }
                 catch (Exception ex)
                 {

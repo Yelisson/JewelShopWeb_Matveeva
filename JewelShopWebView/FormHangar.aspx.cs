@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using Unity;
 using System.Web.UI.WebControls;
 
 namespace JewelShopWebView
 {
     public partial class FormHangar : System.Web.UI.Page
     {
-        private readonly IHangarService service = new HangarServiceList();
+        private readonly IHangarService service = UnityConfig.Container.Resolve<IHangarService>();
 
         private int id;
 
@@ -28,27 +29,15 @@ namespace JewelShopWebView
                     HangarViewModel view = service.GetElement(id);
                     if (view != null)
                     {
-                        name = view.hangarName;
+                        if (!Page.IsPostBack)
+                        {
+                            textBoxName.Text = view.hangarName;
+                        }
                         dataGridView.DataSource = view.HangarElements;
                         dataGridView.DataBind();
-                        dataGridView.Columns[1].Visible = false;
-                        dataGridView.Columns[2].Visible = false;
-                        dataGridView.Columns[3].Visible = false;
-                        service.UpdElement(new HangarBindingModel
-                        {
-                            id = id,
-                            hangarName = ""
-                        });
-                        if (!string.IsNullOrEmpty(name) && string.IsNullOrEmpty(textBoxName.Text))
-                        {
-                            textBoxName.Text = name;
-                        }
-                        service.UpdElement(new HangarBindingModel
-                        {
-                            id = id,
-                            hangarName = name
-                        });
+                        dataGridView.ShowHeaderWhenEmpty = true;
                     }
+                    Page.DataBind();
                 }
                 catch (Exception ex)
                 {
