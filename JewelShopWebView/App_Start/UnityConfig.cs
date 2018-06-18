@@ -1,4 +1,5 @@
 using JewelShopService;
+using JewelShopService.ImplementationsBD;
 using JewelShopService.ImplementationsDB;
 using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
@@ -53,6 +54,7 @@ namespace JewelShopWebView
             container.RegisterType<IAdornmentService, AdornmentServiceDB>();
             container.RegisterType<IHangarService, HangarServiceDB>();
             container.RegisterType<IMainService, MainServiceDB>();
+            container.RegisterType<IReportService, ReportServiceBD>();
         }
     }
 }
