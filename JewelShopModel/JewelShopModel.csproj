@@ -7,8 +7,8 @@
     <ProjectGuid>{80DF828E-7385-4901-8FF4-950C983D881E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlumbingRepairModel</RootNamespace>
-    <AssemblyName>PlumbingRepairModel</AssemblyName>
+    <RootNamespace>JewelShopModel</RootNamespace>
+    <AssemblyName>JewelShopModel</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
