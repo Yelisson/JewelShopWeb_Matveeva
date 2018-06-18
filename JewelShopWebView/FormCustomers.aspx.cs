@@ -7,12 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormCustomers : System.Web.UI.Page
     {
-        private readonly ICustomerService service = new CustomerServiceList();
+        private ICustomerService service = UnityConfig.Container.Resolve<ICustomerService>();
 
         List<CustomerViewModel> list;
 

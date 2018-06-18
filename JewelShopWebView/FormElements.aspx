@@ -17,16 +17,16 @@
         <asp:Button ID="ButtonUpd" runat="server" Text="Обновить" OnClick="ButtonUpd_Click" />
         <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
-                <asp:BoundField DataField="Id" HeaderText="Id" SortExpression="Id" />
-                <asp:CommandField ShowSelectButton="true" SelectText=">>" />
-                <asp:BoundField DataField="ElementName" HeaderText="ElementName" SortExpression="ElementName" />
+                <asp:CommandField ShowSelectButton="True"></asp:CommandField>
+                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />
+                <asp:BoundField DataField="elementName" HeaderText="elementName" SortExpression="elementName" />
             </Columns>
             <SelectedRowStyle BackColor="#CCCCCC" />
         </asp:GridView>
         <br />
         <br />
         <asp:Button ID="ButtonBack" runat="server" Text="Вернуться" OnClick="ButtonBack_Click" />
-        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsList.ElementServiceList"></asp:ObjectDataSource>
+        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsDB.ElementServiceDB"></asp:ObjectDataSource>
     
     </div>
     </form>

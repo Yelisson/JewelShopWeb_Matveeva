@@ -15,11 +15,11 @@
         <asp:Button ID="ButtonChange" runat="server" OnClick="ButtonChange_Click" Text="Изменить" />
         <asp:Button ID="ButtonDelete" runat="server" OnClick="ButtonDelete_Click" Text="Удалить" />
         <asp:Button ID="ButtonUpd" runat="server" Text="Обновить" OnClick="ButtonUpd_Click" />
-        <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" AutoGenerateSelectButton="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
+        <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
-                <asp:BoundField DataField="Id" HeaderText="Id" SortExpression="Id" />
-                <asp:CommandField ShowSelectButton="true" SelectText=">>" />
-                <asp:BoundField DataField="BuyerName" HeaderText="BuyerName" SortExpression="BuyerName" />
+                <asp:CommandField ShowSelectButton="True"></asp:CommandField>
+                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />
+                <asp:BoundField DataField="buyerName" HeaderText="buyerName" SortExpression="buyerName" />
             </Columns>
             <SelectedRowStyle BackColor="#CCCCCC" />
         </asp:GridView>
@@ -28,7 +28,7 @@
         <br />
         <asp:Button ID="ButtonBack" runat="server" Text="Вернуться" OnClick="ButtonBack_Click" />
     
-        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsList.BuyerServiceList"></asp:ObjectDataSource>
+        <asp:ObjectDataSource ID="ObjectDataSource1" runat="server" SelectMethod="GetList" TypeName="JewelShopService.ImplementationsDB.BuyerServiceDB"></asp:ObjectDataSource>
     
     </div>
     </form>

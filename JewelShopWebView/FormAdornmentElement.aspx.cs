@@ -7,12 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;    
 
 namespace JewelShopWebView
 {
     public partial class FormAdornmentElement : System.Web.UI.Page
     {
-        private readonly IElementService service = new ElementServiceList();
+        private readonly IElementService service = UnityConfig.Container.Resolve<IElementService>();
 
         private AdornmentElementViewModel model;
         
@@ -23,22 +24,24 @@ namespace JewelShopWebView
                 List<ElementViewModel> list = service.GetList();
                 if (list != null)
                 {
-                    DropDownListElement.DataSource = list;
-                    DropDownListElement.DataValueField = "id";
-                    DropDownListElement.DataTextField = "elementName";
-                    DropDownListElement.SelectedIndex = -1;
-                    Page.DataBind();
+                    if (!Page.IsPostBack)
+                    {
+                        DropDownListElement.DataSource = list;
+                        DropDownListElement.DataValueField = "id";
+                        DropDownListElement.DataTextField = "elementName";
+                        Page.DataBind();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
             }
-            if (Session["SEId"] != null)
+            if (Session["SEid"] != null)
             {
                 DropDownListElement.Enabled = false;
-                DropDownListElement.SelectedValue = (string)Session["SEElementId"];
-                TextBoxCount.Text = (string)Session["SECount"];
+                DropDownListElement.SelectedValue = (string)Session["SEelementId"];
+                TextBoxCount.Text = (string)Session["SEcount"];
             }
         }
 
@@ -56,7 +59,7 @@ namespace JewelShopWebView
             }
             try
             {
-                if (Session["SEId"] == null)
+                if (Session["SEid"] == null)
                 {
                     model = new AdornmentElementViewModel
                     {
@@ -64,20 +67,20 @@ namespace JewelShopWebView
                         elementName = DropDownListElement.SelectedItem.Text,
                         count = Convert.ToInt32(TextBoxCount.Text)
                     };
-                    Session["SEId"] = model.id;
-                    Session["SEServiceId"] = model.adornmentId;
-                    Session["SEElementId"] = model.elementId;
-                    Session["SEElementName"] = model.elementName;
-                    Session["SECount"] = model.count;
+                    Session["SEid"] = model.id;
+                    Session["SEadornmentId"] = model.adornmentId;
+                    Session["SEelementId"] = model.elementId;
+                    Session["SEelementName"] = model.elementName;
+                    Session["SEcount"] = model.count;
                 }
                 else
                 {
                     model.count = Convert.ToInt32(TextBoxCount.Text);
-                    Session["SEId"] = model.id;
-                    Session["SEServiceId"] = model.adornmentId;
-                    Session["SEElementId"] = model.elementId;
-                    Session["SEElementName"] = model.elementName;
-                    Session["SECount"] = model.count;
+                    Session["SEid"] = model.id;
+                    Session["SEadornmentId"] = model.adornmentId;
+                    Session["SEelementId"] = model.elementId;
+                    Session["SEelementName"] = model.elementName;
+                    Session["SEcount"] = model.count;
                 }
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
                 Server.Transfer("FormAdornment.aspx");

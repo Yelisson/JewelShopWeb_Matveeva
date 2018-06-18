@@ -9,12 +9,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormAdornment : System.Web.UI.Page
     {
-        private readonly IAdornmentService service = new AdornmentServiceList();
+        private readonly IAdornmentService service = UnityConfig.Container.Resolve<IAdornmentService>();
 
         private int id;
 
@@ -31,8 +32,11 @@ namespace JewelShopWebView
                     AdornmentViewModel view = service.GetElement(id);
                     if (view != null)
                     {
-                        textBoxName.Text = view.adornmentName;
-                        textBoxPrice.Text = view.price.ToString();
+                        if (!Page.IsPostBack)
+                        {
+                            textBoxName.Text = view.adornmentName;
+                            textBoxPrice.Text = ((int)view.price).ToString();
+                        }
                         productComponents = view.AdornmentElements;
                         LoadData();
                     }
@@ -44,94 +48,47 @@ namespace JewelShopWebView
             }
             else
             {
-                if (service.GetList().Count == 0 || service.GetList().Last().adornmentName != null)
-                {
+                productComponents = Session["productComponents"] as List<AdornmentElementViewModel>;
+                if (productComponents == null)
                     productComponents = new List<AdornmentElementViewModel>();
-                    LoadData();
-                }
-                else
-                {
-                    productComponents = service.GetList().Last().AdornmentElements;
-                    LoadData();
-                }
             }
-            if (Session["SEId"] != null)
+            if (Session["SEid"] != null)
             {
-                model = new AdornmentElementViewModel
-                {
-                    id = (int)Session["SEId"],
-                    adornmentId = (int)Session["SEServiceId"],
-                    elementId = (int)Session["SEElementId"],
-                    elementName = (string)Session["SEElementName"],
-                    count = (int)Session["SECount"]
-                };
                 if (Session["SEIs"] != null)
                 {
+                    model = new AdornmentElementViewModel
+                    {
+                        id = (int)Session["SEid"],
+                        adornmentId = (int)Session["SEadornmentId"],
+                        elementId = (int)Session["SEelementId"],
+                        elementName = (string)Session["SEelementName"],
+                        count = (int)Session["SEcount"]
+                    };
                     productComponents[(int)Session["SEIs"]] = model;
                 }
                 else
                 {
+                    model = new AdornmentElementViewModel
+                    {
+                        id = (int)Session["SEid"],
+                        adornmentId = (int)Session["SEadornmentId"],
+                        elementId = (int)Session["SEelementId"],
+                        elementName = (string)Session["SEelementName"],
+                        count = (int)Session["SEcount"]
+                    };
                     productComponents.Add(model);
                 }
-            }
-            List<AdornmentElementBindingModel> productComponentBM = new List<AdornmentElementBindingModel>();
-            for (int i = 0; i < productComponents.Count; ++i)
-            {
-                productComponentBM.Add(new AdornmentElementBindingModel
-                {
-                    id = productComponents[i].id,
-                    adornmentId = productComponents[i].adornmentId,
-                    elementId = productComponents[i].elementId,
-                    count = productComponents[i].count
-                });
-            }
-            if (productComponentBM.Count != 0)
-            {
-                if (service.GetList().Count == 0 || service.GetList().Last().adornmentName != null)
-                {
-                    service.AddElement(new AdornmentBindingModel
-                    {
-                        adornmentName = null,
-                        cost = -1,
-                        AdornmentComponents = productComponentBM
-                    });
-                }
-                else
-                {
-                    service.UpdElement(new AdornmentBindingModel
-                    {
-                        id = service.GetList().Last().id,
-                        adornmentName = null,
-                        cost = -1,
-                        AdornmentComponents = productComponentBM
-                    });
-                }
+                Session["SEid"] = null;
+                Session["SEadornmentId"] = null;
+                Session["SEelementId"] = null;
+                Session["SEelementName"] = null;
+                Session["SEсount"] = null;
+                Session["SEIs"] = null;
 
+                Session["productComponents"] = productComponents;
             }
-            try
-            {
-                if (productComponents != null)
-                {
-                    dataGridView.DataBind();
-                    dataGridView.DataSource = productComponents;
-                    dataGridView.DataBind();
-                    dataGridView.ShowHeaderWhenEmpty = true;
-                    dataGridView.SelectedRowStyle.BackColor = Color.Silver;
-                    dataGridView.Columns[1].Visible = false;
-                    dataGridView.Columns[2].Visible = false;
-                    dataGridView.Columns[3].Visible = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
-            }
-            Session["SEId"] = null;
-            Session["SEServiceId"] = null;
-            Session["SEElementId"] = null;
-            Session["SEElementName"] = null;
-            Session["SECount"] = null;
-            Session["SEIs"] = null;
+
+            LoadData();
         }
 
         private void LoadData()
@@ -145,9 +102,6 @@ namespace JewelShopWebView
                     dataGridView.DataBind();
                     dataGridView.ShowHeaderWhenEmpty = true;
                     dataGridView.SelectedRowStyle.BackColor = Color.Silver;
-                    dataGridView.Columns[1].Visible = false;
-                    dataGridView.Columns[2].Visible = false;
-                    dataGridView.Columns[3].Visible = false;
                 }
             }
             catch (Exception ex)
@@ -165,12 +119,14 @@ namespace JewelShopWebView
         {
             if (dataGridView.SelectedIndex >= 0)
             {
-                Session["SEId"] = model.id;
-                Session["SEServiceId"] = model.adornmentId;
-                Session["SEElementId"] = model.elementId;
-                Session["SEElementName"] = model.elementName;
-                Session["SECount"] = model.count;
-                Session["SEIs"] = dataGridView.SelectedIndex;
+                model = service.GetElement(id).AdornmentElements[dataGridView.SelectedIndex];
+                Session["SEid"] = model.id.ToString();
+                Session["SEadornmentId"] = model.adornmentId.ToString();
+                Session["SEelementId"] = model.elementId.ToString();
+                Session["SEcount"] = model.count.ToString();
+                Session["SEIs"] = dataGridView.SelectedIndex.ToString();
+                Session["Change"] = "0";
+
                 Server.Transfer("FormAdornmentElement.aspx");
             }
         }
@@ -226,7 +182,6 @@ namespace JewelShopWebView
                         count = productComponents[i].count
                     });
                 }
-                service.DelElement(service.GetList().Last().id);
                 if (Int32.TryParse((string)Session["id"], out id))
                 {
                     service.UpdElement(new AdornmentBindingModel
@@ -247,6 +202,7 @@ namespace JewelShopWebView
                     });
                 }
                 Session["id"] = null;
+                Session["Change"] = null;
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
                 Server.Transfer("FormAdornments.aspx");
             }
@@ -262,7 +218,12 @@ namespace JewelShopWebView
             {
                 service.DelElement(service.GetList().Last().id);
             }
+            if (!String.Equals(Session["Change"], null))
+            {
+                service.DelElement(id);
+            }
             Session["id"] = null;
+            Session["Change"] = null;
             Server.Transfer("FormAdornments.aspx");
         }
 

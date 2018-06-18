@@ -8,42 +8,46 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormPutOnHangar : System.Web.UI.Page
     {
-        private readonly IHangarService serviceS = new HangarServiceList();
+        private readonly IHangarService serviceS = UnityConfig.Container.Resolve<IHangarService>();
 
-        private readonly IElementService serviceE = new ElementServiceList();
+        private readonly IElementService serviceE = UnityConfig.Container.Resolve<IElementService>();
 
-        private readonly IMainService serviceM = new MainServiceList();
+        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            try
+            if (!Page.IsPostBack)
             {
-                List<HangarViewModel> listH = serviceS.GetList();
-                if (listH != null)
+                try
                 {
-                    DropDownListStorage.DataSource = listH;
-                    DropDownListStorage.DataBind();
-                    DropDownListStorage.DataTextField = "hangarName";
-                    DropDownListStorage.DataValueField = "id";
+                    List<HangarViewModel> listH = serviceS.GetList();
+                    if (listH != null)
+                    {
+                        DropDownListStorage.DataSource = listH;
+                        DropDownListStorage.DataBind();
+                        DropDownListStorage.DataTextField = "hangarName";
+                        DropDownListStorage.DataValueField = "id";
+                    }
+                    List<ElementViewModel> listE = serviceE.GetList();
+                    if (listE != null)
+                    {
+                        DropDownListElement.DataSource = listE;
+                        DropDownListElement.DataBind();
+                        DropDownListElement.DataTextField = "elementName";
+                        DropDownListElement.DataValueField = "id";
+                    }
+                    Page.DataBind();
                 }
-                List<ElementViewModel> listE = serviceE.GetList();
-                if (listE != null)
+                catch (Exception ex)
                 {
-                    DropDownListElement.DataSource = listE;
-                    DropDownListElement.DataBind();
-                    DropDownListElement.DataTextField = "elementName";
-                    DropDownListElement.DataValueField = "id";
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 }
-                Page.DataBind();
-            }
-            catch (Exception ex)
-            {
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
             }
         }
 

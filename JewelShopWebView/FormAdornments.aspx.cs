@@ -7,13 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Unity;
 
 namespace JewelShopWebView
 {
     public partial class FormAdornments : System.Web.UI.Page
     {
-        private readonly IAdornmentService service = new AdornmentServiceList();
-
+        private IAdornmentService service = UnityConfig.Container.Resolve<IAdornmentService>();
         List<AdornmentViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
