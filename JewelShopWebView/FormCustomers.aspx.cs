@@ -65,7 +65,6 @@ namespace JewelShopWebView
                     Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 }
                 LoadData();
-                //Server.Transfer("FormPerformers.aspx");
                 Server.Transfer("FormCustomers.aspx");
             }
         }
