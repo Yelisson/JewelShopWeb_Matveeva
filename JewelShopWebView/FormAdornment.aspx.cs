@@ -48,7 +48,6 @@ namespace JewelShopWebView
             }
             else
             {
-                // Восстанавливаем productComponents из сессии
                 productComponents = Session["productComponents"] as List<AdornmentElementViewModel>;
                 if (productComponents == null)
                     productComponents = new List<AdornmentElementViewModel>();
@@ -86,49 +85,8 @@ namespace JewelShopWebView
                 Session["SEсount"] = null;
                 Session["SEIs"] = null;
 
-                // Сохраняем productComponents в сессию
                 Session["productComponents"] = productComponents;
             }
-            /*
-                        List<AdornmentElementBindingModel> productComponentBM = new List<AdornmentElementBindingModel>();
-                        for (int i = 0; i < productComponents.Count; ++i)
-                        {
-                            productComponentBM.Add(new AdornmentElementBindingModel
-                            {
-                                id = productComponents[i].id,
-                                adornmentId = productComponents[i].adornmentId,
-                                elementId = productComponents[i].elementId,
-                                count = productComponents[i].count
-                            });
-                        }
-                        if (productComponentBM.Count != 0)
-                        {
-                            if (Int32.TryParse((string)Session["id"], out id))
-                            {
-                                service.UpdElement(new AdornmentBindingModel
-                                {
-                                    id = id,
-                                    adornmentName = textBoxName.Text,
-                                    cost = Convert.ToInt32(textBoxPrice.Text),
-                                    AdornmentComponents = productComponentBM
-                                });
-                            }
-                            else
-                            {
-                                service.AddElement(new AdornmentBindingModel
-                                {
-                                    //adornmentName = "-0",
-                                    //cost = 0,
-                                    adornmentName = textBoxName.Text,
-                                    cost = Convert.ToInt32(textBoxPrice.Text),
-                                    AdornmentComponents = productComponentBM
-                                });
-                                Session["id"] = service.GetList().Last().id.ToString();
-                                Session["Change"] = "0";
-                            }
-
-                        }
-                        */
 
             LoadData();
         }
