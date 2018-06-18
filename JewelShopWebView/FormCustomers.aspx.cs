@@ -46,7 +46,6 @@ namespace JewelShopWebView
             {
                 string index = list[dataGridView.SelectedIndex].id.ToString();
                 Session["id"] = index;
-                //Server.Transfer("FormPerformer.aspx");
                 Server.Transfer("FormCustomer.aspx");
             }
         }
