@@ -36,7 +36,6 @@ namespace JewelShopWebView
 
         protected void ButtonAdd_Click(object sender, EventArgs e)
         {
-            //Server.Transfer("FormPerformer.aspx");
             Server.Transfer("FormCustomer.aspx");
         }
 
@@ -46,7 +45,6 @@ namespace JewelShopWebView
             {
                 string index = list[dataGridView.SelectedIndex].id.ToString();
                 Session["id"] = index;
-                //Server.Transfer("FormPerformer.aspx");
                 Server.Transfer("FormCustomer.aspx");
             }
         }
@@ -65,7 +63,6 @@ namespace JewelShopWebView
                     Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 }
                 LoadData();
-                //Server.Transfer("FormPerformers.aspx");
                 Server.Transfer("FormCustomers.aspx");
             }
         }
