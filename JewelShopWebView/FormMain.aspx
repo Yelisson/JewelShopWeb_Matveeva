@@ -26,6 +26,10 @@
                     <asp:MenuItem Text="Сотрудники" Value="Сотрудники" NavigateUrl="~/FormCustomers.aspx"></asp:MenuItem>
                 </asp:MenuItem>
                 <asp:MenuItem Text="Пополнить склад" Value="Пополнить склад" NavigateUrl="~/FormPutOnHangar.aspx"></asp:MenuItem>
+                <asp:MenuItem Text="Отчеты" Value="Отчеты">
+                    <asp:MenuItem Text="Прайс изделий" Value="Прайс изделий" NavigateUrl="~/FormSavePrice.aspx"></asp:MenuItem>
+                    <asp:MenuItem Text="Загруженность складов" Value="Загруженность складов" NavigateUrl="~/FormHangarsLoad.aspx"></asp:MenuItem>
+                </asp:MenuItem>
             </Items>
         </asp:Menu>
         <asp:Button ID="ButtonCreateIndent" runat="server" Text="Создать заказ" OnClick="ButtonCreateIndent_Click" />
