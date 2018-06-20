@@ -171,9 +171,6 @@ namespace JewelShopWebView
                 Session["SEid"] = model.id.ToString();
                 Session["SEadornmentId"] = model.adornmentId.ToString();
                 Session["SEelementId"] = model.elementId.ToString();
-                //Session["SEcount"] = model.count.ToString();
-                //Session["SEIs"] = dataGridView.SelectedIndex.ToString();
-                //Session["Change"] = "0";
 
                 Server.Transfer("FormAdornmentElement.aspx");
             }
