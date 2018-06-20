@@ -14,33 +14,42 @@ namespace JewelShopWebView
 {
     public partial class FormOrder : System.Web.UI.Page
     {
-        private readonly IBuyerService serviceC = UnityConfig.Container.Resolve<IBuyerService>();
-
-        private readonly IAdornmentService serviceS = UnityConfig.Container.Resolve<IAdornmentService>();
-
-        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
-
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
                 if (!Page.IsPostBack)
                 {
-                    List<BuyerViewModel> listC = serviceC.GetList();
-                    if (listC != null)
+                    var responseC = APIClient.GetRequest("api/Buyer/GetList");
+                    if (responseC.Result.IsSuccessStatusCode)
                     {
-                        DropDownListCustomer.DataSource = listC;
-                        DropDownListCustomer.DataBind();
-                        DropDownListCustomer.DataTextField = "buyerName";
-                        DropDownListCustomer.DataValueField = "id";
+                        List <BuyerViewModel > list = APIClient.GetElement<List<BuyerViewModel>>(responseC);
+                        if (list != null)
+                        {
+                            DropDownListCustomer.DataSource = list;
+                            DropDownListCustomer.DataBind();
+                            DropDownListCustomer.DataTextField = "buyerName";
+                            DropDownListCustomer.DataValueField = "id";
+                         }
+                     }
+                    else
+                    {
+                        throw new Exception(APIClient.GetError(responseC));
                     }
-                    List<AdornmentViewModel> listP = serviceS.GetList();
-                    if (listP != null)
+                    var responseP = APIClient.GetRequest("api/Adornment/GetList");
+                    if (responseP.Result.IsSuccessStatusCode)
                     {
-                        DropDownListService.DataSource = listP;
-                        DropDownListService.DataBind();
-                        DropDownListService.DataTextField = "adornmentName";
-                        DropDownListService.DataValueField = "id";
+                        List<AdornmentViewModel> list = APIClient.GetElement<List<AdornmentViewModel>>(responseP);
+                        if (list != null)
+                        {
+                            DropDownListService.DataSource = list;
+                            DropDownListService.DataBind();
+                            DropDownListService.DataTextField = "adornmentName";
+                            DropDownListService.DataValueField = "id";
+                        }
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(responseP));
                     }
                     Page.DataBind();
                 }
@@ -59,9 +68,17 @@ namespace JewelShopWebView
                 try
                 {
                     int id = Convert.ToInt32(DropDownListService.SelectedValue);
-                    AdornmentViewModel product = serviceS.GetElement(id);
-                    int count = Convert.ToInt32(TextBoxCount.Text);
-                    TextBoxSum.Text = ((int)(count * product.price)).ToString();
+                    var responseP = APIClient.GetRequest("api/Adornment/Get/" + id);
+                    if (responseP.Result.IsSuccessStatusCode)
+                    {
+                        AdornmentViewModel product = APIClient.GetElement<AdornmentViewModel>(responseP);
+                        int count = Convert.ToInt32(TextBoxCount.Text);
+                        TextBoxSum.Text = ((int)(count * product.price)).ToString();
+                    }
+                    else
+                    {
+                        throw new Exception(APIClient.GetError(responseP));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -99,15 +116,22 @@ namespace JewelShopWebView
             }
             try
             {
-                serviceM.CreateOrder(new ProdOrderBindingModel
+                var response = APIClient.PostRequest("api/Main/CreateOrder", new ProdOrderBindingModel
                 {
                     buyerId = Convert.ToInt32(DropDownListCustomer.SelectedValue),
                     adornmentId = Convert.ToInt32(DropDownListService.SelectedValue),
                     count = Convert.ToInt32(TextBoxCount.Text),
                     sum = Convert.ToInt32(TextBoxSum.Text)
                 });
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-                Server.Transfer("FormMain.aspx");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Server.Transfer("FormMain.aspx");
+                }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {

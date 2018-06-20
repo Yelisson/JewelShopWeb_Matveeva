@@ -14,33 +14,42 @@ namespace JewelShopWebView
 {
     public partial class FormPutOnHangar : System.Web.UI.Page
     {
-        private readonly IHangarService serviceS = UnityConfig.Container.Resolve<IHangarService>();
-
-        private readonly IElementService serviceE = UnityConfig.Container.Resolve<IElementService>();
-
-        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
             {
                 try
                 {
-                    List<HangarViewModel> listH = serviceS.GetList();
-                    if (listH != null)
+                    var responseC = APIClient.GetRequest("api/Element/GetList");
+                    if (responseC.Result.IsSuccessStatusCode)
                     {
-                        DropDownListStorage.DataSource = listH;
-                        DropDownListStorage.DataBind();
-                        DropDownListStorage.DataTextField = "hangarName";
-                        DropDownListStorage.DataValueField = "id";
+                       List<ElementViewModel> list = APIClient.GetElement<List<ElementViewModel>>(responseC);
+                       if (list != null)
+                       {
+                           DropDownListElement.DataSource = list;
+                           DropDownListElement.DataBind();
+                           DropDownListElement.DataTextField = "elementName";
+                           DropDownListElement.DataValueField = "id";
+                       }
                     }
-                    List<ElementViewModel> listE = serviceE.GetList();
-                    if (listE != null)
+                    else
                     {
-                        DropDownListElement.DataSource = listE;
-                        DropDownListElement.DataBind();
-                        DropDownListElement.DataTextField = "elementName";
-                        DropDownListElement.DataValueField = "id";
+                        throw new Exception(APIClient.GetError(responseC));
+                    }
+                    var responseS = APIClient.GetRequest("api/Hangar/GetList");
+                    if (responseS.Result.IsSuccessStatusCode)
+                    {
+                        List <HangarViewModel > list = APIClient.GetElement<List<HangarViewModel>>(responseS);
+                        if (list != null)
+                        {
+                            DropDownListStorage.DataSource = list;
+                            DropDownListStorage.DataBind();
+                            DropDownListStorage.DataTextField = "hangarName";
+                            DropDownListStorage.DataValueField = "id";
+                         }
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(responseC));
                     }
                     Page.DataBind();
                 }
@@ -70,14 +79,20 @@ namespace JewelShopWebView
             }
             try
             {
-                serviceM.PutComponentOnStock(new HangarElementBindingModel
+                var response = APIClient.PostRequest("api/Main/PutComponentOnStock", new HangarElementBindingModel
                 {
                     elementId = Convert.ToInt32(DropDownListElement.SelectedValue),
                     hangarId = Convert.ToInt32(DropDownListStorage.SelectedValue),
                     count = Convert.ToInt32(TextBoxCount.Text)
                 });
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-                Server.Transfer("FormMain.aspx");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Server.Transfer("FormMain.aspx");
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {

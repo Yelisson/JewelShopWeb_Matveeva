@@ -9,13 +9,13 @@ using System.Web;
 using System.Web.UI;
 using Unity;
 using System.Web.UI.WebControls;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace JewelShopWebView
 {
     public partial class FormHangar : System.Web.UI.Page
     {
-        private readonly IHangarService service = UnityConfig.Container.Resolve<IHangarService>();
-
         private int id;
 
         private string name;
@@ -26,16 +26,23 @@ namespace JewelShopWebView
             {
                 try
                 {
-                    HangarViewModel view = service.GetElement(id);
-                    if (view != null)
+                    var response = APIClient.GetRequest("api/Hangar/Get/" + id);
+                    if (response.Result.IsSuccessStatusCode)
                     {
-                        if (!Page.IsPostBack)
+                        var view = APIClient.GetElement<HangarViewModel>(response);
+                        if (view != null)
                         {
-                            textBoxName.Text = view.hangarName;
+                            if (!Page.IsPostBack)
+                            {
+                                textBoxName.Text = view.hangarName;
+                            }
+                            dataGridView.DataSource = view.HangarElements;
+                            dataGridView.DataBind();
+                            dataGridView.ShowHeaderWhenEmpty = true;
                         }
-                        dataGridView.DataSource = view.HangarElements;
-                        dataGridView.DataBind();
-                        dataGridView.ShowHeaderWhenEmpty = true;
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
                     }
                     Page.DataBind();
                 }
@@ -55,9 +62,10 @@ namespace JewelShopWebView
             }
             try
             {
+                Task<HttpResponseMessage> response;
                 if (Int32.TryParse((string)Session["id"], out id))
                 {
-                    service.UpdElement(new HangarBindingModel
+                    response = APIClient.PostRequest("api/Hangar/UpdElement", new HangarBindingModel
                     {
                         id = id,
                         hangarName = textBoxName.Text
@@ -65,10 +73,19 @@ namespace JewelShopWebView
                 }
                 else
                 {
-                    service.AddElement(new HangarBindingModel
+                    response = APIClient.PostRequest("api/Hangar/AddElement", new HangarBindingModel
                     {
                         hangarName = textBoxName.Text
                     });
+                }
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Session["id"] = null;
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Server.Transfer("FormHangars.aspx");
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
                 }
             }
             catch (Exception ex)
@@ -76,9 +93,6 @@ namespace JewelShopWebView
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 Server.Transfer("FormHangars.aspx");
             }
-            Session["id"] = null;
-            Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-            Server.Transfer("FormHangars.aspx");
         }
 
         protected void ButtonCancel_Click(object sender, EventArgs e)

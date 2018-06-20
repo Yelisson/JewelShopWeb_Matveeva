@@ -9,18 +9,16 @@ using System.Web.Mvc;
 using System.Web.UI;
 using Unity;
 using System.Web.UI.WebControls;
+using JewelShopService.BindingModels;
 
 namespace JewelShopWebView
 {
     public partial class FormMain : System.Web.UI.Page
     {
-        private IMainService service = UnityConfig.Container.Resolve<IMainService>();
-
         List<ProdOrderViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            service = UnityConfig.Container.Resolve<IMainService>();
             LoadData();
         }
 
@@ -28,11 +26,18 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView1.Columns[0].Visible = false;
-                dataGridView1.Columns[2].Visible = false;
-                dataGridView1.Columns[4].Visible = false;
-                dataGridView1.Columns[6].Visible = false;
+                var response = APIClient.GetRequest("api/Main/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    list = APIClient.GetElement<List<ProdOrderViewModel>>(response);
+                    dataGridView1.Columns[2].Visible = false;
+                    dataGridView1.Columns[4].Visible = false;
+                    dataGridView1.Columns[6].Visible = false;
+                }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -62,9 +67,18 @@ namespace JewelShopWebView
                 int id = list[dataGridView1.SelectedIndex].id;
                 try
                 {
-                    service.FinishOrder(id);
-                    LoadData();
-                    Server.Transfer("FormMain.aspx");
+                    var response = APIClient.PostRequest("api/Main/FinishOrder", new ProdOrderBindingModel
+                    {
+                        id = id
+                    });
+                    if (response.Result.IsSuccessStatusCode)
+                    {
+                        LoadData();
+                        Server.Transfer("FormMain.aspx");
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -80,9 +94,19 @@ namespace JewelShopWebView
                 int id = list[dataGridView1.SelectedIndex].id;
                 try
                 {
-                    service.PayOrder(id);
-                    LoadData();
-                    Server.Transfer("FormMain.aspx");
+                    var response = APIClient.PostRequest("api/Main/PayOrder", new ProdOrderBindingModel
+                    {
+                        id = id
+                    });
+                    if (response.Result.IsSuccessStatusCode)
+                    {
+                        LoadData();
+                        Server.Transfer("FormMain.aspx");
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
+                       
                 }
                 catch (Exception ex)
                 {

@@ -1,4 +1,5 @@
 ﻿using JewelShopService.Interfaces;
+using JewelShopService.ViewModels;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,6 @@ namespace JewelShopWebView
 {
     public partial class FormHangarsLoad : System.Web.UI.Page
     {
-        private readonly IReportService service = UnityConfig.Container.Resolve<IReportService>();
-
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -26,8 +25,17 @@ namespace JewelShopWebView
                 Table.Rows[0].Cells[1].Text = "Компонент";
                 Table.Rows[0].Cells.Add(new TableCell());
                 Table.Rows[0].Cells[2].Text = "Количество";
-                var dict = service.GetHangarsLoad();
-                if (dict != null)
+
+                var response = APIClient.GetRequest("api/Report/GetHangarsLoad");
+                var dict = new List<HangarsLoadViewModel>();
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    dict = APIClient.GetElement<List<HangarsLoadViewModel>>(response);
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
+                    if (dict != null)
                 {
                     int i = 1;
                     foreach (var elem in dict)

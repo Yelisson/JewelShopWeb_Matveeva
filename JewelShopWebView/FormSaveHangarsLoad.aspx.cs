@@ -12,8 +12,6 @@ namespace JewelShopWebView
 {
     public partial class FormSaveHangarsLoad : System.Web.UI.Page
     {
-        readonly IReportService reportService = UnityConfig.Container.Resolve<IReportService>();
-
         protected void Page_Load(object sender, EventArgs e)
         {
             Response.Clear();
@@ -23,12 +21,17 @@ namespace JewelShopWebView
             Response.ContentEncoding = System.Text.Encoding.UTF8;
             try
             {
-                reportService.SaveHangarsLoad(new ReportBindingModel
+                var response = APIClient.PostRequest("api/Report/SaveHangarsLoad", new ReportBindingModel
                 {
                     fileName = "D:\\WebHangarsLoad.xls"
                 });
-                Response.WriteFile("D:\\WebHangarsLoad.xls");
-       
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Response.WriteFile("D:\\WebHangarsLoad.xls");
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {

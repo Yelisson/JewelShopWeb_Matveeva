@@ -22,11 +22,19 @@ namespace JewelShopWebView
             Response.ContentType = "application/vnd.ms-word";
             try
             {
-                reportService.SaveAdornmentPrice(new ReportBindingModel
+                var response = APIClient.PostRequest("api/Report/SaveProductPrice", new ReportBindingModel
                 {
                     fileName = "D:\\WebAdornmentPrice.docx"
                 });
                 Response.WriteFile("D:\\WebAdornmentPrice.docx");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Response.WriteFile("D:\\WebAdornmentPrice.docx");
+                }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {

@@ -39,13 +39,9 @@
         <asp:Button ID="ButtonUpd" runat="server" Text="Обновить список" OnClick="ButtonUpd_Click" />
         <asp:GridView ID="dataGridView1" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
-                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />
                 <asp:CommandField ShowSelectButton="true" SelectText=">>" /> 
-                <asp:BoundField DataField="buyerId" HeaderText="buyerId" SortExpression="buyerId" />
                 <asp:BoundField DataField="buyerName" HeaderText="buyerName" SortExpression="buyerName" />
-                <asp:BoundField DataField="adornmentId" HeaderText="adornmentId" SortExpression="adornmentId" />
                 <asp:BoundField DataField="adornmentName" HeaderText="adornmentName" SortExpression="adornmentName" />
-                <asp:BoundField DataField="customerId" HeaderText="customerId" SortExpression="customerId" />
                 <asp:BoundField DataField="customerName" HeaderText="customerName" SortExpression="customerName" />
                 <asp:BoundField DataField="count" HeaderText="count" SortExpression="count" />
                 <asp:BoundField DataField="sum" HeaderText="sum" SortExpression="sum" />

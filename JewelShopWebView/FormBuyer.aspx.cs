@@ -5,6 +5,8 @@ using JewelShopService.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -29,13 +31,17 @@ namespace JewelShopWebView
             {
                 try
                 {
-                    BuyerViewModel view = service.GetElement(id);
-                    if (view != null)
+                    var response = APIClient.GetRequest("api/Buyer/Get/" + id);
+                    if (response.Result.IsSuccessStatusCode)
                     {
+                        var client = APIClient.GetElement<BuyerViewModel>(response);
                         if (!Page.IsPostBack)
                         {
-                            textBoxFIO.Text = view.buyerName;
+                            textBoxFIO.Text = client.buyerName;
                         }
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
                     }
                 }
                 catch (Exception ex)
@@ -54,9 +60,10 @@ namespace JewelShopWebView
             }
             try
             {
+                Task<HttpResponseMessage> response;
                 if (Int32.TryParse((string)Session["id"], out id))
                 {
-                    service.UpdElement(new BuyerBindingModel
+                    response = APIClient.PostRequest("api/Buyer/UpdElement", new BuyerBindingModel
                     {
                         id = id,
                         buyerName = textBoxFIO.Text
@@ -64,7 +71,7 @@ namespace JewelShopWebView
                 }
                 else
                 {
-                    service.AddElement(new BuyerBindingModel
+                    response = APIClient.PostRequest("api/Buyer/AddElement", new BuyerBindingModel
                     {
                         buyerName = textBoxFIO.Text
                     });

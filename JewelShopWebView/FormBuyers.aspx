@@ -18,7 +18,6 @@
         <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
                 <asp:CommandField ShowSelectButton="True"></asp:CommandField>
-                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />
                 <asp:BoundField DataField="buyerName" HeaderText="buyerName" SortExpression="buyerName" />
             </Columns>
             <SelectedRowStyle BackColor="#CCCCCC" />
