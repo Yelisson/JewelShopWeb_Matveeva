@@ -1,4 +1,5 @@
-﻿using JewelShopService.ImplementationsList;
+﻿using JewelShopService.BindingModels;
+using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using JewelShopService.ViewModels;
 using System;
@@ -14,13 +15,10 @@ namespace JewelShopWebView
 {
     public partial class FormBuyers : System.Web.UI.Page
     {
-        private IBuyerService service = UnityConfig.Container.Resolve<IBuyerService>();
-
         List<BuyerViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            service = UnityConfig.Container.Resolve<IBuyerService>();
             LoadData();
         }
 
@@ -28,8 +26,15 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView.Columns[0].Visible = false;
+                var response = APIClient.GetRequest("api/Buyer/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                  {
+                    list = APIClient.GetElement<List<BuyerViewModel>>(response);
+                   }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -59,7 +64,11 @@ namespace JewelShopWebView
                 int id = list[dataGridView.SelectedIndex].id;
                 try
                 {
-                    service.DelElement(id);
+                    var response = APIClient.PostRequest("api/Buyer/DelElement", new BuyerBindingModel { id = id });
+                    if (!response.Result.IsSuccessStatusCode)
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {

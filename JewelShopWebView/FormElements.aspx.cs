@@ -1,4 +1,5 @@
-﻿using JewelShopService.ImplementationsList;
+﻿using JewelShopService.BindingModels;
+using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using JewelShopService.ViewModels;
 using System;
@@ -13,8 +14,6 @@ namespace JewelShopWebView
 {
     public partial class FormElements : System.Web.UI.Page
     {
-        private IElementService service = UnityConfig.Container.Resolve<IElementService>();
-
         List<ElementViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -26,8 +25,15 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView.Columns[0].Visible = false;
+                var response = APIClient.GetRequest("api/Element/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    list = APIClient.GetElement<List<ElementViewModel>>(response);
+                }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -57,7 +63,11 @@ namespace JewelShopWebView
                 int id = list[dataGridView.SelectedIndex].id;
                 try
                 {
-                    service.DelElement(id);
+                    var response = APIClient.PostRequest("api/Element/DelElement", new ElementBindingModel { id = id });
+                    if (!response.Result.IsSuccessStatusCode)
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {

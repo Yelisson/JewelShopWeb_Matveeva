@@ -1,4 +1,5 @@
-﻿using JewelShopService.ImplementationsList;
+﻿using JewelShopService.BindingModels;
+using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using JewelShopService.ViewModels;
 using System;
@@ -13,8 +14,6 @@ namespace JewelShopWebView
 {
     public partial class FormHangars : System.Web.UI.Page
     {
-        private IHangarService service = UnityConfig.Container.Resolve<IHangarService>();
-
         List<HangarViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -26,8 +25,14 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView.Columns[0].Visible = false;
+                var response = APIClient.GetRequest("api/Hangar/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    list = APIClient.GetElement<List<HangarViewModel>>(response);
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }   
             catch (Exception ex)
             {
@@ -57,7 +62,11 @@ namespace JewelShopWebView
                 int id = list[dataGridView.SelectedIndex].id;
                 try
                 {
-                    service.DelElement(id);
+                    var response = APIClient.PostRequest("api/Hangar/DelElement", new HangarBindingModel { id = id });
+                    if (!response.Result.IsSuccessStatusCode)
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {

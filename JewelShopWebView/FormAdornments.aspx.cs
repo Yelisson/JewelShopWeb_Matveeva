@@ -1,4 +1,5 @@
-﻿using JewelShopService.ImplementationsList;
+﻿using JewelShopService.BindingModels;
+using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using JewelShopService.ViewModels;
 using System;
@@ -13,7 +14,6 @@ namespace JewelShopWebView
 {
     public partial class FormAdornments : System.Web.UI.Page
     {
-        private IAdornmentService service = UnityConfig.Container.Resolve<IAdornmentService>();
         List<AdornmentViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -25,8 +25,14 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView.Columns[0].Visible = false;
+                var response = APIClient.GetRequest("api/Adornment/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    list = APIClient.GetElement<List<AdornmentViewModel>>(response);
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -45,7 +51,6 @@ namespace JewelShopWebView
             {
                 string index = list[dataGridView.SelectedIndex].id.ToString();
                 Session["id"] = index;
-                //Server.Transfer("FormService.aspx");
                 Server.Transfer("FormAdornment.aspx");
             }
         }
@@ -57,7 +62,11 @@ namespace JewelShopWebView
                 int id = list[dataGridView.SelectedIndex].id;
                 try
                 {
-                    service.DelElement(id);
+                    var response = APIClient.PostRequest("api/Adornment/DelElement", new AdornmentBindingModel { id = id });
+                    if (!response.Result.IsSuccessStatusCode)
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {

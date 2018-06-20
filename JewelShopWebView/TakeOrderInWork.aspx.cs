@@ -14,9 +14,6 @@ namespace JewelShopWebView
 {
     public partial class TakeOrderInWork : System.Web.UI.Page
     {
-        private readonly ICustomerService serviceP = UnityConfig.Container.Resolve<ICustomerService>();
-
-        private readonly IMainService serviceM = UnityConfig.Container.Resolve<IMainService>();
 
         private int id;
 
@@ -24,21 +21,31 @@ namespace JewelShopWebView
         {
             try
             {
-                    if (!Int32.TryParse((string)Session["id"], out id))
+                if (!Int32.TryParse((string)Session["id"], out id))
+                {
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Не указан заказ');</script>");
+                    Server.Transfer("FormMain.aspx");
+                }
+                var response = APIClient.GetRequest("api/Customer/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    List<CustomerViewModel> list = APIClient.GetElement<List<CustomerViewModel>>(response);
+                    if (list != null)
                     {
-                        Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Не указан заказ');</script>");
-                        Server.Transfer("FormMain.aspx");
-                    }
-                    List<CustomerViewModel> listI = serviceP.GetList();
-                    if (listI != null)
-                    {
-                        DropDownListPerformer.DataSource = listI;
-                        DropDownListPerformer.DataBind();
-                        DropDownListPerformer.DataTextField = "customerName";
-                        DropDownListPerformer.DataValueField = "id";
-                        DropDownListPerformer.SelectedIndex = -1;
+                        if (!Page.IsPostBack)
+                        {
+                            DropDownListPerformer.DataSource = list;
+                            DropDownListPerformer.DataBind();
+                            DropDownListPerformer.DataTextField = "customerName";
+                            DropDownListPerformer.DataValueField = "id";
+                            DropDownListPerformer.SelectedIndex = -1;
+                        }
                     }
                     Page.DataBind();
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -55,14 +62,20 @@ namespace JewelShopWebView
             }
             try
             {
-                serviceM.TakeOrderInWork(new ProdOrderBindingModel
+                var response = APIClient.PostRequest("api/Main/TakeOrderInWork", new ProdOrderBindingModel
                 {
                     id = id,
                     customerId = Convert.ToInt32(DropDownListPerformer.SelectedValue)
                 });
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-                Session["id"] = null;
-                Server.Transfer("FormMain.aspx");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Session["id"] = null;
+                    Server.Transfer("FormMain.aspx");
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {

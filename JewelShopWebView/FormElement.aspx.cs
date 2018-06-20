@@ -5,6 +5,8 @@ using JewelShopService.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -14,13 +16,7 @@ namespace JewelShopWebView
 {
     public partial class FormElement : System.Web.UI.Page
     {
-        public int Id { set { id = value; } }
-
-        private readonly IElementService service = UnityConfig.Container.Resolve<IElementService>();
-
         private int id;
-
-        private string name;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -28,13 +24,20 @@ namespace JewelShopWebView
             {
                 try
                 {
-                    ElementViewModel view = service.GetElement(id);
-                    if (view != null)
+                    var response = APIClient.GetRequest("api/Element/Get/" + id);
+                    if (response.Result.IsSuccessStatusCode)
                     {
-                        if (!Page.IsPostBack)
+                        var component = APIClient.GetElement<ElementViewModel>(response);
+                        if (component != null)
                         {
-                            textBoxName.Text = view.elementName;
+                            if (!Page.IsPostBack)
+                            {
+                                textBoxName.Text = component.elementName;
+                            }
                         }
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
                     }
                 }
                 catch (Exception ex)
@@ -53,9 +56,10 @@ namespace JewelShopWebView
             }
             try
             {
+                Task<HttpResponseMessage> response;
                 if (Int32.TryParse((string)Session["id"], out id))
                 {
-                    service.UpdElement(new ElementBindingModel
+                    response = APIClient.PostRequest("api/Element/UpdElement", new ElementBindingModel
                     {
                         id = id,
                         elementName = textBoxName.Text
@@ -63,10 +67,20 @@ namespace JewelShopWebView
                 }
                 else
                 {
-                    service.AddElement(new ElementBindingModel
+                    response = APIClient.PostRequest("api/Element/AddElement", new ElementBindingModel
                     {
                         elementName = textBoxName.Text
                     });
+                }
+                if (response.Result.IsSuccessStatusCode)
+                    {
+                    Session["id"] = null;
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Server.Transfer("FormElements.aspx");
+                    }
+                else
+                {
+                    throw new Exception(APIClient.GetError(response));
                 }
             }
             catch (Exception ex)
@@ -74,9 +88,6 @@ namespace JewelShopWebView
                 Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 Server.Transfer("FormElements.aspx");
             }
-            Session["id"] = null;
-            Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-            Server.Transfer("FormElements.aspx");
         }
 
         protected void ButtonCancel_Click(object sender, EventArgs e)

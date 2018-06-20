@@ -17,8 +17,7 @@
         <asp:Button ID="ButtonUpd" runat="server" Text="Обновить" OnClick="ButtonUpd_Click" />
         <asp:GridView ID="dataGridView" runat="server" AutoGenerateColumns="False" DataSourceID="ObjectDataSource1" ShowHeaderWhenEmpty="True">
             <Columns>
-                <asp:CommandField ShowSelectButton="True" />
-                <asp:BoundField DataField="id" HeaderText="id" SortExpression="id" />              
+                <asp:CommandField ShowSelectButton="True" />            
                 <asp:BoundField DataField="hangarName" HeaderText="hangarName" SortExpression="hangarName" />
             </Columns>
             <SelectedRowStyle BackColor="#CCCCCC" />

@@ -1,4 +1,5 @@
-﻿using JewelShopService.ImplementationsList;
+﻿using JewelShopService.BindingModels;
+using JewelShopService.ImplementationsList;
 using JewelShopService.Interfaces;
 using JewelShopService.ViewModels;
 using System;
@@ -13,8 +14,6 @@ namespace JewelShopWebView
 {
     public partial class FormCustomers : System.Web.UI.Page
     {
-        private ICustomerService service = UnityConfig.Container.Resolve<ICustomerService>();
-
         List<CustomerViewModel> list;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -26,8 +25,14 @@ namespace JewelShopWebView
         {
             try
             {
-                list = service.GetList();
-                dataGridView.Columns[0].Visible = false;
+                var response = APIClient.GetRequest("api/Customer/GetList");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    list = APIClient.GetElement<List<CustomerViewModel>>(response);
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -46,7 +51,6 @@ namespace JewelShopWebView
             {
                 string index = list[dataGridView.SelectedIndex].id.ToString();
                 Session["id"] = index;
-                //Server.Transfer("FormPerformer.aspx");
                 Server.Transfer("FormCustomer.aspx");
             }
         }
@@ -58,14 +62,17 @@ namespace JewelShopWebView
                 int id = list[dataGridView.SelectedIndex].id;
                 try
                 {
-                    service.DelElement(id);
+                    var response = APIClient.PostRequest("api/Customer/DelElement", new CustomerBindingModel { id = id });
+                    if (!response.Result.IsSuccessStatusCode)
+                    {
+                        throw new Exception(APIClient.GetError(response));
+                    }
                 }
                 catch (Exception ex)
                 {
                     Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('" + ex.Message + "');</script>");
                 }
                 LoadData();
-                //Server.Transfer("FormPerformers.aspx");
                 Server.Transfer("FormCustomers.aspx");
             }
         }

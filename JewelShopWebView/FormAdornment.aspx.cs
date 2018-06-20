@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -15,8 +17,6 @@ namespace JewelShopWebView
 {
     public partial class FormAdornment : System.Web.UI.Page
     {
-        private readonly IAdornmentService service = UnityConfig.Container.Resolve<IAdornmentService>();
-
         private int id;
 
         private List<AdornmentElementViewModel> productComponents;
@@ -29,16 +29,23 @@ namespace JewelShopWebView
             {
                 try
                 {
-                    AdornmentViewModel view = service.GetElement(id);
-                    if (view != null)
+                    var response = APIClient.GetRequest("api/Adornment/Get/" + id);
+                    if (response.Result.IsSuccessStatusCode)
                     {
-                        if (!Page.IsPostBack)
+                        var view = APIClient.GetElement<AdornmentViewModel>(response);
+                        if (view != null)
                         {
-                            textBoxName.Text = view.adornmentName;
-                            textBoxPrice.Text = ((int)view.price).ToString();
+                            if (!Page.IsPostBack)
+                            {
+                                textBoxName.Text = view.adornmentName;
+                                textBoxPrice.Text = ((int)view.price).ToString();
+                            }
+                            productComponents = view.AdornmentElements;
+                            LoadData();
                         }
-                        productComponents = view.AdornmentElements;
-                        LoadData();
+                    }else
+                    {
+                        throw new Exception(APIClient.GetError(response));
                     }
                 }
                 catch (Exception ex)
@@ -48,7 +55,6 @@ namespace JewelShopWebView
             }
             else
             {
-                // Восстанавливаем productComponents из сессии
                 productComponents = Session["productComponents"] as List<AdornmentElementViewModel>;
                 if (productComponents == null)
                     productComponents = new List<AdornmentElementViewModel>();
@@ -86,7 +92,6 @@ namespace JewelShopWebView
                 Session["SEсount"] = null;
                 Session["SEIs"] = null;
 
-                // Сохраняем productComponents в сессию
                 Session["productComponents"] = productComponents;
             }
             /*
@@ -161,13 +166,14 @@ namespace JewelShopWebView
         {
             if (dataGridView.SelectedIndex >= 0)
             {
-                model = service.GetElement(id).AdornmentElements[dataGridView.SelectedIndex];
+                var response = APIClient.GetRequest("api/Adornment/Get/" + id);
+                model = APIClient.GetElement<AdornmentViewModel>(response).AdornmentElements[dataGridView.SelectedIndex];
                 Session["SEid"] = model.id.ToString();
                 Session["SEadornmentId"] = model.adornmentId.ToString();
                 Session["SEelementId"] = model.elementId.ToString();
-                Session["SEcount"] = model.count.ToString();
-                Session["SEIs"] = dataGridView.SelectedIndex.ToString();
-                Session["Change"] = "0";
+                //Session["SEcount"] = model.count.ToString();
+                //Session["SEIs"] = dataGridView.SelectedIndex.ToString();
+                //Session["Change"] = "0";
 
                 Server.Transfer("FormAdornmentElement.aspx");
             }
@@ -224,9 +230,10 @@ namespace JewelShopWebView
                         count = productComponents[i].count
                     });
                 }
+                Task<HttpResponseMessage> response;
                 if (Int32.TryParse((string)Session["id"], out id))
                 {
-                    service.UpdElement(new AdornmentBindingModel
+                    response = APIClient.PostRequest("api/Adornment/UpdElement", new AdornmentBindingModel
                     {
                         id = id,
                         adornmentName = textBoxName.Text,
@@ -236,17 +243,23 @@ namespace JewelShopWebView
                 }
                 else
                 {
-                    service.AddElement(new AdornmentBindingModel
+                    response = APIClient.PostRequest("api/Adornment/AddElement", new AdornmentBindingModel
                     {
                         adornmentName = textBoxName.Text,
                         cost = Convert.ToInt32(textBoxPrice.Text),
                         AdornmentComponents = productComponentBM
                     });
                 }
-                Session["id"] = null;
-                Session["Change"] = null;
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
-                Server.Transfer("FormAdornments.aspx");
+                if (response.Result.IsSuccessStatusCode)
+                {
+                    Session["id"] = null;
+                    Session["Change"] = null;
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "Scripts", "<script>alert('Сохранение прошло успешно');</script>");
+                    Server.Transfer("FormAdornments.aspx");
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             catch (Exception ex)
             {
@@ -256,13 +269,23 @@ namespace JewelShopWebView
 
         protected void ButtonCancel_Click(object sender, EventArgs e)
         {
-            if (service.GetList().Count != 0 && service.GetList().Last().adornmentName == null)
+            var response = APIClient.GetRequest("api/Adornment/GetList");
+            var view = APIClient.GetElement<List<AdornmentViewModel>>(response);
+            if (view.Count != 0 && view.Last().adornmentName == null)
             {
-                service.DelElement(service.GetList().Last().id);
+                response = APIClient.PostRequest("api/Adornment/DelElement", new AdornmentBindingModel { id = view.Last().id });
+                if (!response.Result.IsSuccessStatusCode)
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             if (!String.Equals(Session["Change"], null))
             {
-                service.DelElement(id);
+                response = APIClient.PostRequest("api/Adornment/DelElement", new AdornmentBindingModel { id = id });
+                if (!response.Result.IsSuccessStatusCode)
+                {
+                    throw new Exception(APIClient.GetError(response));
+                }
             }
             Session["id"] = null;
             Session["Change"] = null;

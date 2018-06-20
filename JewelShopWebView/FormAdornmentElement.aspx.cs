@@ -13,24 +13,29 @@ namespace JewelShopWebView
 {
     public partial class FormAdornmentElement : System.Web.UI.Page
     {
-        private readonly IElementService service = UnityConfig.Container.Resolve<IElementService>();
-
         private AdornmentElementViewModel model;
         
         protected void Page_Load(object sender, EventArgs e)
         {
             try
             {
-                List<ElementViewModel> list = service.GetList();
-                if (list != null)
+                var response = APIClient.GetRequest("api/Element/GetList");
+                if (response.Result.IsSuccessStatusCode)
                 {
-                    if (!Page.IsPostBack)
+                    List<ElementViewModel> list = APIClient.GetElement<List<ElementViewModel>>(response);
+                    if (list != null)
                     {
-                        DropDownListElement.DataSource = list;
-                        DropDownListElement.DataValueField = "id";
-                        DropDownListElement.DataTextField = "elementName";
-                        Page.DataBind();
+                        if (!Page.IsPostBack)
+                        {
+                            DropDownListElement.DataSource = list;
+                            DropDownListElement.DataValueField = "id";
+                            DropDownListElement.DataTextField = "elementName";
+                            Page.DataBind();
+                        }
                     }
+                }else
+                {
+                    throw new Exception(APIClient.GetError(response));
                 }
             }
             catch (Exception ex)
